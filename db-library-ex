@@ -1,0 +1,58 @@
+CREATE TABLE autori (
+    autor_id INT PRIMARY KEY IDENTITY(1,1),  
+    ime VARCHAR(255) NOT NULL,              
+    prezime VARCHAR(255) NOT NULL            
+);
+CREATE TABLE knjige (
+    knjiga_id INT PRIMARY KEY IDENTITY (1,1),
+    naslov VARCHAR(255) NOT NULL,              
+    godina_izdanja INT,                        
+    isbn VARCHAR(20),                          
+    broj_kopija INT,                            
+    autor_id INT,                              
+    FOREIGN KEY (autor_id) REFERENCES autori(autor_id) ON DELETE SET NULL
+);
+CREATE TABLE korisnici (
+    korisnik_id INT PRIMARY KEY identity (1,1),
+    ime VARCHAR(100) NOT NULL,                  
+    prezime VARCHAR(100) NOT NULL,              
+    email VARCHAR(255) UNIQUE,                  
+    broj_telefona VARCHAR(15),                  
+    datum_registracije DATE                    
+);
+CREATE TABLE posudba (
+    posudba_id INT PRIMARY KEY identity (1,1),
+    knjiga_id INT,                              
+    korisnik_id INT,                            
+    datum_posudbe DATE NOT NULL,                
+    datum_vracanja DATE NOT NULL,              
+    preostali_dani INT,                        
+    FOREIGN KEY (knjiga_id) REFERENCES knjige(knjiga_id) ON DELETE CASCADE,  
+    FOREIGN KEY (korisnik_id) REFERENCES korisnici(korisnik_id) ON DELETE CASCADE
+);
+INSERT INTO autori (ime, prezime) VALUES
+('J.K.', 'Rowling'),
+('J.R.R.', 'Tolkien'),
+('George', 'Orwell'),
+('Harper', 'Lee');
+INSERT INTO knjige (naslov, godina_izdanja, isbn, broj_kopija, autor_id)
+VALUES
+('Harry Potter i kamen mudraca', 1997, '9780747532743', 5, 1),
+('Gospodar prstenova: Bratstvo prstena', 1954, '9780261103573', 3, 2),
+('1984', 1949, '9780451524935', 2, 3),
+('To Kill a Mockingbird', 1960, '9780061120084', 4, 4);
+INSERT INTO korisnici (ime, prezime, email, broj_telefona, datum_registracije)
+VALUES
+('Marko', 'Horvat', 'marko.horvat@email.com', '0912345678', '2023-01-15'),
+('Ivana', 'Kovač', 'ivana.kovac@email.com', '0923456789', '2023-03-10'),
+('Ana', 'Matić', 'ana.matic@email.com', '0954567890', '2023-06-25'),
+('Petar', 'Jurić', 'petar.juric@email.com', '0985678901', '2023-08-02');
+INSERT INTO posudba (knjiga_id, korisnik_id, datum_posudbe, datum_vracanja, preostali_dani)
+VALUES
+(1, 1, '2024-11-15', '2024-12-15', 12),
+(2, 2, '2024-11-20', '2024-12-20', 17),
+(3, 3, '2024-11-22', '2024-12-22', 19),
+(4, 4, '2024-11-25', '2024-12-25', 20);  
+SELECT * FROM posudba;
+SELECT * FROM knjige;
+SELECT *FROM autor
