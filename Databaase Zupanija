@@ -1,0 +1,89 @@
+create table zupanija
+(
+    id_zupanije int IDENTITY (1, 1) PRIMARY KEY,
+    naziv varchar(25) NOT NULL,
+    broj_stanovnika int
+);
+
+create table mjesto
+(
+    id_mjesta int IDENTITY (1, 1) PRIMARY KEY,
+    id_zupanije int,
+    naziv varchar(50) NOT NULL,
+    post_broj int,
+    broj_stanovnika int,
+    constraint fk_mjesto_zupanija FOREIGN KEY (id_zupanije) references zupanija(id_zupanije)
+);
+
+create table kolegij
+(
+    sifra_kol char(6) primary key,  -- šifra kolegija
+    naziv varchar(100) not null     -- naziv kolegija
+);
+
+create table student
+(
+    maticni_broj char(9) constraint pk_student primary key,
+    ime varchar(25) not null,
+    oib char(11) constraint uq_oib unique,
+    datum_rodenja date not null,
+    mjesto_rod int constraint fk_mjesto foreign key references mjesto(id_mjesta)
+);
+
+create table polaze
+(
+    maticni_broj char(9) constraint fk_student foreign key references student(maticni_broj),
+    sifra_kol char(6) constraint fk_kolegij foreign key references kolegij(sifra_kol),
+    ocjena tinyint default 0 constraint ck_ocjena check (ocjena > 0 and ocjena < 6),
+    datum_polaganja date,
+    constraint pk_polaze primary key (maticni_broj, sifra_kol)
+);
+
+-- Unos u tablicu zupanija
+insert into zupanija (naziv, broj_stanovnika) values 
+('Zagrebačka', 500000),
+('Splitsko-dalmatinska', 400000),
+('Osječko-baranjska', 300000),
+('Primorsko-goranska', 200000);
+
+-- Unos u tablicu mjesto
+insert into mjesto (id_zupanije, naziv, post_broj, broj_stanovnika) values
+(1, 'Zagreb', 10000, 800000),
+(1, 'Samobor', 10430, 40000),
+(2, 'Split', 21000, 200000),
+(2, 'Kaštela', 21210, 150000),
+(3, 'Osijek', 31000, 150000),
+(3, 'Osijek-centar', 31201, 50000),
+(4, 'Rijeka', 51000, 150000),
+(4, 'Crikvenica', 51260, 20000);
+
+-- Unos u tablicu kolegij
+insert into kolegij (sifra_kol, naziv) values
+('INF001', 'Osnove programiranja'),
+('INF002', 'Baze podataka'),
+('MAT001', 'Matematika 1'),
+('MAT002', 'Matematika 2'),
+('FIZ001', 'Osnove fizike');
+
+-- Unos u tablicu student
+insert into student (maticni_broj, ime, oib, datum_rodenja, mjesto_rod) values
+('000000000', 'Marko Markić', '12345678901', '1995-04-15', 1),   -- Zagreb
+('000000001', 'Ana Anić', '23456789012', '1996-06-22', 2),     -- Samobor
+('000000002', 'Ivan Ivanić', '34567890123', '1997-09-10', 3),  -- Split
+('000000003', 'Petra Petrović', '45678901234', '1994-11-05', 4), -- Kaštela
+('000000004', 'Luka Lukić', '56789012345', '1995-02-28', 5);  -- Osijek
+
+-- Unos u tablicu polaze
+insert into polaze (maticni_broj, sifra_kol, ocjena, datum_polaganja) values
+('000000000', 'INF001', 5, '2024-06-15'),
+('000000001', 'INF002', 4, '2024-06-18'),
+('000000002', 'MAT001', 3, '2024-06-20'),
+('000000003', 'FIZ001', 5, '2024-06-22'),
+('000000004', 'MAT002', 4, '2024-06-25');
+
+
+SELECT * FROM zupanija;
+SELECT * FROM mjesto;
+SELECT * FROM kolegij;
+SELECT * FROM student;
+SELECT * FROM polaze;
