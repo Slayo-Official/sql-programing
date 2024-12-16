@@ -1,0 +1,76 @@
+-- više na više = međutablica
+
+-- Kreiranje tablice za pacijente
+CREATE TABLE Pacijenti (
+    PacijentID INT PRIMARY KEY identity(1,1), -- Primarni ključ
+    OIB VARCHAR(11) NOT NULL, -- OIB pacijenta
+    Ime VARCHAR(100) NOT NULL, -- Ime pacijenta
+    Prezime VARCHAR(100) NOT NULL, -- Prezime pacijenta
+    MaticniBroj VARCHAR(20) NOT NULL -- Maticni broj pacijenta
+);
+
+-- Kreiranje tablice za doktore
+CREATE TABLE Doktori (
+    DoktorID INT PRIMARY KEY identity(1,1), -- Primarni ključ
+    Ime VARCHAR(100) NOT NULL, -- Ime doktora
+    Prezime VARCHAR(100) NOT NULL, -- Prezime doktora
+    Sifra VARCHAR(50) NOT NULL -- Sifra doktora
+);
+
+-- Kreiranje tablice za narudžbe
+CREATE TABLE Narudzbe (
+    NarudzbaID INT PRIMARY KEY identity(1,1), -- Primarni ključ
+    PacijentID INT, -- Strani ključ prema tablici pacijenti
+    DoktorID INT, -- Strani ključ prema tablici doktori
+    Datum DATE NOT NULL, -- Datum narudžbe
+    Vrijeme TIME NOT NULL, -- Sat termina
+    Dvorana VARCHAR(50), -- Dvorana za pregled
+    FOREIGN KEY (PacijentID) REFERENCES Pacijenti(PacijentID), -- Veza sa tablicom pacijenata
+    FOREIGN KEY (DoktorID) REFERENCES Doktori(DoktorID) -- Veza sa tablicom doktora
+);
+
+-- Dodavanje primjera pacijenata
+INSERT INTO Pacijenti (OIB, Ime, Prezime, MaticniBroj)
+VALUES
+('12345678901', 'Marko', 'Horvat', '123456789'),
+('23456789012', 'Ivana', 'Kovač', '234567890'),
+('34567890123', 'Petra', 'Marin', '345678901');
+
+-- Dodavanje primjera doktora
+INSERT INTO Doktori (Ime, Prezime, Sifra)
+VALUES
+('Ana', 'Ivić', 'D001'),
+('Ivan', 'Jurić', 'D002'),
+('Tomislav', 'Kovačić', 'D003');
+
+-- Dodavanje primjera narudžbi
+INSERT INTO Narudzbe (PacijentID, DoktorID, Datum, Vrijeme, Dvorana)
+VALUES
+(1, 1, '2024-12-06', '09:00:00', 'Dvorana 1'),
+(2, 2, '2024-12-06', '10:30:00', 'Dvorana 2'),
+(3, 3, '2024-12-06', '11:00:00', 'Dvorana 3');
+
+SELECT * FROM Pacijenti
+SELECT * FROM Doktori
+SELECT * FROM Narudzbe
+
+SELECT
+    p.PacijentID,
+    p.OIB,
+    p.Ime AS PacijentIme,
+    p.Prezime AS PacijentPrezime,
+    p.MaticniBroj,
+    d.DoktorID,
+    d.Ime AS DoktorIme,
+    d.Prezime AS DoktorPrezime,
+    d.Sifra AS DoktorSifra,
+    n.NarudzbaID,
+    n.Datum,
+    n.Vrijeme,
+    n.Dvorana
+FROM
+    Narudzbe n
+JOIN
+    Pacijenti p ON n.PacijentID = p.PacijentID
+JOIN
+    Doktori d ON n.DoktorID = d.DoktorID;
