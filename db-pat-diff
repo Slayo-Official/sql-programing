@@ -1,0 +1,89 @@
+
+CREATE TABLE Pacijenti (
+    PacijentID INT PRIMARY KEY IDENTITY(1,1),
+    OIB VARCHAR(11) NOT NULL,
+    Ime VARCHAR(100) NOT NULL,
+    Prezime VARCHAR(100) NOT NULL,
+    MaticniBroj VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE Doktori (
+    DoktorID INT PRIMARY KEY IDENTITY(1,1),
+    Ime VARCHAR(100) NOT NULL,
+    Prezime VARCHAR(100) NOT NULL,
+    Sifra VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE SlobodniDani (
+    SlobodanDanID INT PRIMARY KEY IDENTITY(1,1),
+    DoktorID INT,
+    Datum DATE NOT NULL,
+    FOREIGN KEY (DoktorID) REFERENCES Doktori(DoktorID)
+);
+
+CREATE TABLE Narudzbe (
+    NarudzbaID INT PRIMARY KEY IDENTITY(1,1),
+    PacijentID INT,
+    DoktorID INT,
+    Datum DATE NOT NULL,
+    Vrijeme TIME NOT NULL,
+    Dvorana VARCHAR(50),
+    FOREIGN KEY (PacijentID) REFERENCES Pacijenti(PacijentID),
+    FOREIGN KEY (DoktorID) REFERENCES Doktori(DoktorID)
+);
+
+
+GO
+CREATE TRIGGER prije_unosa_narudzbe
+ON Narudzbe
+FOR INSERT
+AS
+BEGIN
+   
+    IF EXISTS (
+        SELECT 1
+        FROM SlobodniDani s
+        JOIN INSERTED i ON s.DoktorID = i.DoktorID AND s.Datum = i.Datum
+    )
+    BEGIN
+        RAISERROR('Doktor je slobodan na odabrani datum. Termin ne može biti unesen.', 16, 1);
+        ROLLBACK TRANSACTION;
+    END
+END;
+GO
+
+
+INSERT INTO Pacijenti (OIB, Ime, Prezime, MaticniBroj)
+VALUES
+    ('12345678901', 'Marko', 'Horvat', '1234567890'),
+    ('23456789012', 'Ivana', 'Kovač', '2345678901'),
+    ('34567890123', 'Petra', 'Marin', '3456789012');
+
+
+INSERT INTO Doktori (Ime, Prezime, Sifra)
+VALUES
+    ('Ana', 'Ivić', 'D123'),
+    ('Ivan', 'Jurić', 'D124'),
+    ('Tomislav', 'Kovačić', 'D125');
+
+INSERT INTO SlobodniDani (DoktorID, Datum)
+VALUES
+    (1, '2024-12-06'),
+    (2, '2024-12-07');  
+
+
+INSERT INTO Narudzbe (PacijentID, DoktorID, Datum, Vrijeme, Dvorana)
+VALUES
+    (1, 1, '2024-12-05', '09:00:00', 'Dvorana 1'),
+    (2, 2, '2024-12-06', '10:30:00', 'Dvorana 2'),  
+    (3, 3, '2024-12-05', '11:00:00', 'Dvorana 3');
+
+      /* Testni podatak koda sa unosom termina na slobodan dan
+INSERT INTO Narudzbe (PacijentID, DoktorID, Datum, Vrijeme, Dvorana)
+VALUES (1, 1, '2024-12-06', '09:00:00', 'Dvorana 1');  
+*/
+
+SELECT * FROM Pacijenti;
+SELECT * FROM Doktori;
+SELECT * FROM SlobodniDani;
+SELECT * FROM Narudzbe;
